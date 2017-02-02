@@ -1,15 +1,21 @@
 package hack.com.cacli;
 
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.nhn.android.maps.NMapContext;
+import com.nhn.android.maps.NMapLocationManager;
 import com.nhn.android.maps.NMapView;
+import com.nhn.android.maps.maplib.NGeoPoint;
+
+import java.util.Locale;
 
 
 /**
@@ -42,7 +48,7 @@ public class MapFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
+        final NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
         mapView.setClientId(CLIENT_ID);
         mapView.setClickable(true);
         mapView.setEnabled(true);
@@ -50,6 +56,16 @@ public class MapFragment extends Fragment {
         mapView.setFocusableInTouchMode(true);
         mapView.requestFocus();
         mMapContext.setupMapView(mapView);
+
+        GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
+            @Override
+            public void success(Location location) {
+                Log.i("info", String.format(Locale.KOREA, "위도 : %s 경도 : %s", String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude())));
+                NGeoPoint point = new NGeoPoint(location.getLongitude(), location.getLatitude());
+                mapView.getMapController().setMapCenter(point, 13);
+            }
+        });
+        gpsModule.getCurrentLocation();
     }
 
     @Override
