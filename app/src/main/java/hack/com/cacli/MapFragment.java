@@ -18,6 +18,9 @@ import com.nhn.android.maps.NMapOverlay;
 import com.nhn.android.maps.NMapOverlayItem;
 import com.nhn.android.maps.NMapView;
 import com.nhn.android.maps.maplib.NGeoPoint;
+import com.nhn.android.maps.overlay.NMapPOIdata;
+import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
+import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 import com.nhn.android.mapviewer.overlay.NMapResourceProvider;
 
 import java.util.Locale;
@@ -54,13 +57,10 @@ public class MapFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         final NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
-        mapView.setClientId(CLIENT_ID);
-        mapView.setClickable(true);
-        mapView.setEnabled(true);
-        mapView.setFocusable(true);
-        mapView.setFocusableInTouchMode(true);
-        mapView.requestFocus();
-        mMapContext.setupMapView(mapView);
+        initMapView(mapView);
+
+        final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
+        final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
         GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
@@ -68,19 +68,35 @@ public class MapFragment extends Fragment {
                 Log.i("info", String.format(Locale.KOREA, "위도 : %s 경도 : %s", String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude())));
                 NGeoPoint point = new NGeoPoint(location.getLongitude(), location.getLatitude());
                 mapView.getMapController().setMapCenter(point, 13);
+
+
+                int markerId = NMapPOIflagType.PIN;
+
+                // set POI data
+                NMapPOIdata poiData = new NMapPOIdata(2, mMapViewerResourceProvider);
+                poiData.beginPOIdata(1);
+                poiData.addPOIitem(location.getLongitude(), location.getLatitude(), "Pizza 777-111", markerId, 0);
+                poiData.endPOIdata();
+
+                // create POI data overlay
+                NMapPOIdataOverlay poiDataOverlay = mapOverlayManager.createPOIdataOverlay(poiData, null);
+// show all POI data
+                poiDataOverlay.showAllPOIdata(0);
+
             }
         });
         gpsModule.getCurrentLocation();
-
-        NGeoPoint point = new NGeoPoint(140, 37);
-        Drawable dr = getResources().getDrawable(R.mipmap.ic_launcher);
-        NMapOverlayItem mark = new NMapOverlayItem(point, "title", "snippet", dr);
-        mark.setVisibility(NMapOverlayItem.VISIBLE);
-        CustomOverlay custom = new CustomOverlay();
-
-        custom.draw(null,mapView,false);
     }
 
+    private void initMapView(NMapView mapView) {
+        mapView.setClientId(CLIENT_ID);
+        mapView.setClickable(true);
+        mapView.setEnabled(true);
+        mapView.setFocusable(true);
+        mapView.setFocusableInTouchMode(true);
+        mapView.requestFocus();
+        mMapContext.setupMapView(mapView);
+    }
 
 
     @Override

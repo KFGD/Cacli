@@ -199,7 +199,7 @@ public class NMapViewerResourceProvider extends NMapResourceProvider implements
         int resourceId = 0;
 
         if (DEBUG) {
-            Log.i(LOG_TAG, "getResourceIdForMarker: markerId=" + markerId + ", focused=" + focused);
+            //Log.i(LOG_TAG, "getResourceIdForMarker: markerId=" + markerId + ", focused=" + focused);
         }
 
         if (markerId < NMapPOIflagType.SINGLE_MARKER_END) {
