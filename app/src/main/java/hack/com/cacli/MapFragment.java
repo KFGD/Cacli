@@ -1,6 +1,8 @@
 package hack.com.cacli;
 
 
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,8 +14,11 @@ import android.view.ViewGroup;
 
 import com.nhn.android.maps.NMapContext;
 import com.nhn.android.maps.NMapLocationManager;
+import com.nhn.android.maps.NMapOverlay;
+import com.nhn.android.maps.NMapOverlayItem;
 import com.nhn.android.maps.NMapView;
 import com.nhn.android.maps.maplib.NGeoPoint;
+import com.nhn.android.mapviewer.overlay.NMapResourceProvider;
 
 import java.util.Locale;
 
@@ -66,7 +71,17 @@ public class MapFragment extends Fragment {
             }
         });
         gpsModule.getCurrentLocation();
+
+        NGeoPoint point = new NGeoPoint(140, 37);
+        Drawable dr = getResources().getDrawable(R.mipmap.ic_launcher);
+        NMapOverlayItem mark = new NMapOverlayItem(point, "title", "snippet", dr);
+        mark.setVisibility(NMapOverlayItem.VISIBLE);
+        CustomOverlay custom = new CustomOverlay();
+
+        custom.draw(null,mapView,false);
     }
+
+
 
     @Override
     public void onStart() {

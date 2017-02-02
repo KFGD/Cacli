@@ -1,5 +1,6 @@
 package hack.com.cacli;
 
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -7,7 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.nhn.android.maps.NMapActivity;
+import com.nhn.android.maps.NMapOverlayItem;
 import com.nhn.android.maps.NMapView;
+import com.nhn.android.maps.maplib.NGeoPoint;
 
 public class MapActivity extends FragmentActivity {
 
@@ -21,5 +24,6 @@ public class MapActivity extends FragmentActivity {
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.frame_map, mapFragment);
         fragmentTransaction.commit();
+
     }
 }
