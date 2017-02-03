@@ -2,8 +2,8 @@ package hack.com.cacli;
 
 
 import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
+
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.location.Geocoder;
 import android.widget.Toast;
 
 import com.nhn.android.maps.NMapContext;
@@ -70,7 +71,9 @@ public class MapFragment extends Fragment {
         final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
         final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
-        gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
+        mapView.getMapController().setMapCenter(findGeoPoint("강남역"),13);
+
+        GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
             public void success(Location location) {
                 if(location == null) {
@@ -114,7 +117,10 @@ public class MapFragment extends Fragment {
                 });
             }
         });
+
+
         gpsModule.getCurrentLocation();
+
     }
 
     private void initMapView(NMapView mapView) {
@@ -126,6 +132,34 @@ public class MapFragment extends Fragment {
         mapView.requestFocus();
         mMapContext.setupMapView(mapView);
     }
+
+    /**
+     * 주소로부터 위치정보 취득
+     * @param address 주소
+     */
+    private NGeoPoint findGeoPoint(String address) {
+        Geocoder geocoder = new Geocoder(getActivity());
+        Address addr;
+        NGeoPoint location = null;
+
+        Log.i("info","findGeoPoint");
+
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(address, 1);
+            if (listAddress.size() > 0) { // 주소값이 존재 하면
+                addr = listAddress.get(0); // Address형태로
+                int lat = (int) ((addr.getLatitude()) * 1E6);
+                int lng = (int) ((addr.getLongitude()) * 1E6);
+                location = new NGeoPoint(lng, lat);
+
+                Log.i("info", "주소로부터 취득한 위도 : " + lat + ", 경도 : " + lng);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return location;
+    }
+
 
 
     @Override
