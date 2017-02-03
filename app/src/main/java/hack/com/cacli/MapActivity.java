@@ -1,8 +1,13 @@
 package hack.com.cacli;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -11,10 +16,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -37,7 +47,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     @Override
     protected void onStart() {
         super.onStart();
-        MapFragment mapFragment = MapFragment.getInstance();
+        MapFragment mapFragment = MapFragment.getInstance(this);
         mapFragment.setArguments(new Bundle());
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
@@ -118,5 +128,28 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 }
             }break;
         }
+    }
+
+    public void callBottomSheet(String title, final boolean isStar){
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinatorLayout), "", Snackbar.LENGTH_LONG);
+        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout)snackbar.getView();
+        //layout.setMinimumHeight((int)getResources().getDimension(R.dimen.snackbar_height));
+        layout.removeAllViews();
+        layout.setBackgroundColor(Color.WHITE);
+
+        View snackView = LayoutInflater.from(this).inflate(R.layout.view_bottom_sheet, null);
+        TextView tv_title = (TextView)snackView.findViewById(R.id.tv_title);
+        tv_title.setText(title);
+        final ImageButton ib_star = (ImageButton)snackView.findViewById(R.id.ib_star);
+        ib_star.setImageResource(isStar ? R.drawable.ic_star : R.drawable.ic_unstar);
+        ib_star.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ib_star.setImageResource(R.drawable.ic_star);
+            }
+        });
+        layout.addView(snackView);
+        snackbar.show();
+
     }
 }

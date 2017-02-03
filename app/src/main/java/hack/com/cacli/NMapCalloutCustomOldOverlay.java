@@ -70,10 +70,8 @@ public class NMapCalloutCustomOldOverlay extends NMapCalloutOverlay {
     private final float mTailGapX;
     private final float mTitleOffsetY;
 
-    private final Drawable mBackgroundDrawable;
     protected final Rect mTemp2Rect = new Rect();
     private final Rect mRightButtonRect;
-    private final String mRightButtonText;
     private final int mCalloutRightButtonWidth;
     private final int mCalloutRightButtonHeight;
     private Drawable[] mDrawableRightButton;
@@ -99,8 +97,7 @@ public class NMapCalloutCustomOldOverlay extends NMapCalloutOverlay {
         public Drawable[] getCalloutRightAccessory(NMapOverlayItem item);
     }
 
-    public NMapCalloutCustomOldOverlay(NMapOverlay itemOverlay, NMapOverlayItem item, Rect itemBounds,
-                                       NMapCalloutCustomOldOverlay.ResourceProvider resourceProvider) {
+    public NMapCalloutCustomOldOverlay(NMapOverlay itemOverlay, NMapOverlayItem item, Rect itemBounds) {
 
         super(itemOverlay, item, itemBounds);
 
@@ -128,22 +125,12 @@ public class NMapCalloutCustomOldOverlay extends NMapCalloutOverlay {
 
         mTitleOffsetY = NMapResourceProvider.toPixelFromDIP(CALLOUT_TITLE_OFFSET_Y);
 
-        if (resourceProvider == null) {
-            throw new IllegalArgumentException(
-                    "NMapCalloutCustomOverlay.ResourceProvider should be provided on creation of NMapCalloutCustomOverlay.");
-        }
-
-        mBackgroundDrawable = resourceProvider.getCalloutBackground(item);
 
         boolean hasRightAccessory = false;
-        mDrawableRightButton = resourceProvider.getCalloutRightAccessory(item);
         if (mDrawableRightButton != null && mDrawableRightButton.length > 0) {
             hasRightAccessory = true;
 
-            mRightButtonText = null;
         } else {
-            mDrawableRightButton = resourceProvider.getCalloutRightButton(item);
-            mRightButtonText = resourceProvider.getCalloutRightButtonText(item);
         }
 
         if (mDrawableRightButton != null) {
@@ -245,14 +232,7 @@ public class NMapCalloutCustomOldOverlay extends NMapCalloutOverlay {
                 drawable.draw(canvas);
             }
 
-            if (mRightButtonText != null) {
-                mTextPaint.getTextBounds(mRightButtonText, 0, mRightButtonText.length(), mTempRect);
 
-                left = mRightButtonRect.left + (mCalloutRightButtonWidth - mTempRect.width()) / 2;
-                top = mRightButtonRect.top + (mCalloutRightButtonHeight - mTempRect.height()) / 2 + mTempRect.height()
-                        + mTitleOffsetY;
-                canvas.drawText(mRightButtonText, left, top, mTextPaint);
-            }
         }
 
         // draw tail text
@@ -278,8 +258,6 @@ public class NMapCalloutCustomOldOverlay extends NMapCalloutOverlay {
         mTemp2Rect.right = (int) (mTempRectF.right + 0.5F);
         mTemp2Rect.bottom = (int) (mTempRectF.top + mTotalHeight + 0.5F);
 
-        mBackgroundDrawable.setBounds(mTemp2Rect);
-        mBackgroundDrawable.draw(canvas);
     }
 
     private void adjustTextBounds(NMapView mapView) {
