@@ -69,7 +69,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 InputMethodManager imm= (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(edtxt_search.getWindowToken(), 0);
 
-                mapFragment.POST("naver.com",123,123);
+                mapFragment.POST("http://www.naver.com",123,123);
             }
         });
     }

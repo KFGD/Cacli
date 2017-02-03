@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -176,9 +177,10 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
 
             // convert JSONObject to JSON to String
             json = jsonObject.toString();
-            Log.i("info",json);
+            Log.i("info","json : " + json);
 
             // Set some headers to inform server about the type of the content
+            httpCon.setRequestMethod("POST");
             httpCon.setRequestProperty("Accept", "application/json");
             httpCon.setRequestProperty("Content-type", "application/json");
 
@@ -187,9 +189,16 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
             // InputStream으로 서버로 부터 응답을 받겠다는 옵션.
             httpCon.setDoInput(true);
 
+            httpCon.connect();
+
             OutputStream os = httpCon.getOutputStream();
-            os.write(json.getBytes("euc-kr"));
-            os.flush();
+            OutputStreamWriter wr = new OutputStreamWriter(os,"UTF-8");
+            wr.write(json);
+            wr.flush();
+            wr.close();
+            os.close();
+
+
             // receive response as inputStream
             try {
                 is = httpCon.getInputStream();
@@ -199,7 +208,8 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                 else
                     result = "Did not work!";
 
-                Log.i("info","responce : " + result);
+                is.close();
+                Log.i("info","response : " + result);
             }
             catch (IOException e) {
                 e.printStackTrace();
