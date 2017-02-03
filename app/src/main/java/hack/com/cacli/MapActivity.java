@@ -71,8 +71,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -155,8 +153,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             return true;
         }
 
-        return true;
-        //return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
