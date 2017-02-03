@@ -1,9 +1,6 @@
 package hack.com.cacli;
 
 
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -17,17 +14,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.nhn.android.maps.NMapContext;
-import com.nhn.android.maps.NMapLocationManager;
-import com.nhn.android.maps.NMapOverlay;
-import com.nhn.android.maps.NMapOverlayItem;
 import com.nhn.android.maps.NMapView;
 import com.nhn.android.maps.maplib.NGeoPoint;
 import com.nhn.android.maps.overlay.NMapPOIdata;
 import com.nhn.android.maps.overlay.NMapPOIitem;
-import com.nhn.android.mapviewer.overlay.NMapCalloutOverlay;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
-import com.nhn.android.mapviewer.overlay.NMapResourceProvider;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,9 +34,15 @@ public class MapFragment extends Fragment {
     private NMapContext mMapContext;
     private static final String CLIENT_ID = "HTSOdNC5nUu2HRqBtirR";
     private Geocoder mGeocoder;
-
+    private GPSModule gpsModule;
     public MapFragment() {
         // Required empty public constructor
+    }
+
+    public static MapFragment getInstance(){
+        MapFragment mapFragment = new MapFragment();
+
+        return mapFragment;
     }
 
 
@@ -72,9 +70,13 @@ public class MapFragment extends Fragment {
         final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
         final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
-        GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
+        gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
             public void success(Location location) {
+                if(location == null) {
+                    Toast.makeText(getActivity(), "GPS을 확인해주시기 바랍니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Log.i("info", String.format(Locale.KOREA, "위도 : %s 경도 : %s", String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude())));
                 NGeoPoint point = new NGeoPoint(location.getLongitude(), location.getLatitude());
                 mapView.getMapController().setMapCenter(point, 13);
@@ -99,7 +101,6 @@ public class MapFragment extends Fragment {
 
                     @Override
                     public void onCalloutClick(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
-                        Log.i("info", "call");
                         NGeoPoint point = nMapPOIitem.getPoint();
                         try {
                             List<Address> addressList = mGeocoder.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
