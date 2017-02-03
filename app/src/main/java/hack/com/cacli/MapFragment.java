@@ -6,14 +6,12 @@ import android.location.Location;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.location.Geocoder;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nhn.android.maps.NMapContext;
@@ -77,7 +75,6 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
         final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
-        //mapView.getMapController().setMapCenter(findGeoPoint("강남역"),13);
 
         GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
@@ -115,6 +112,16 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         mMapContext.setupMapView(mapView);
     }
 
+    public void SearchMapByAddress(String address){
+        final NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
+        NGeoPoint point = findGeoPoint(address);
+
+        if(point != null)
+            mapView.getMapController().setMapCenter(point,13);
+        else
+            Toast.makeText(getActivity(), "찾을 수 없는 주소입니다." , Toast.LENGTH_SHORT).show();
+    }
+
     /**
      * 주소로부터 위치정보 취득
      * @param address 주소
@@ -136,8 +143,11 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
 
                 Log.i("info", "주소로부터 취득한 위도 : " + lat + ", 경도 : " + lng);
             }
+            else
+                return null;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
         return location;
     }
