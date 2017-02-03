@@ -2,9 +2,11 @@ package hack.com.cacli;
 
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Location;
+
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.location.Geocoder;
-
+import android.widget.Toast;
 
 import com.nhn.android.maps.NMapContext;
 import com.nhn.android.maps.NMapLocationManager;
@@ -22,6 +24,8 @@ import com.nhn.android.maps.NMapOverlayItem;
 import com.nhn.android.maps.NMapView;
 import com.nhn.android.maps.maplib.NGeoPoint;
 import com.nhn.android.maps.overlay.NMapPOIdata;
+import com.nhn.android.maps.overlay.NMapPOIitem;
+import com.nhn.android.mapviewer.overlay.NMapCalloutOverlay;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 import com.nhn.android.mapviewer.overlay.NMapResourceProvider;
@@ -38,6 +42,7 @@ public class MapFragment extends Fragment {
 
     private NMapContext mMapContext;
     private static final String CLIENT_ID = "HTSOdNC5nUu2HRqBtirR";
+    private Geocoder mGeocoder;
 
     public MapFragment() {
         // Required empty public constructor
@@ -55,6 +60,7 @@ public class MapFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMapContext = new NMapContext(super.getActivity());
+        mGeocoder = new Geocoder(getActivity(), Locale.KOREA);
         mMapContext.onCreate();
     }
 
@@ -75,8 +81,6 @@ public class MapFragment extends Fragment {
                 Log.i("info", String.format(Locale.KOREA, "위도 : %s 경도 : %s", String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude())));
                 NGeoPoint point = new NGeoPoint(location.getLongitude(), location.getLatitude());
                 mapView.getMapController().setMapCenter(point, 13);
-
-
                 int markerId = NMapPOIflagType.PIN;
 
                 // set POI data
@@ -89,7 +93,27 @@ public class MapFragment extends Fragment {
                 NMapPOIdataOverlay poiDataOverlay = mapOverlayManager.createPOIdataOverlay(poiData, null);
                 // show all POI data
                 poiDataOverlay.showAllPOIdata(0);
+                //set event listener to the overlay
+                poiDataOverlay.setOnStateChangeListener(new NMapPOIdataOverlay.OnStateChangeListener() {
+                    @Override
+                    public void onFocusChanged(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
 
+                    }
+
+                    @Override
+                    public void onCalloutClick(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
+                        Log.i("info", "call");
+                        NGeoPoint point = nMapPOIitem.getPoint();
+                        try {
+                            List<Address> addressList = mGeocoder.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
+                            if(addressList != null && addressList.size() > 0){
+                                Toast.makeText(getActivity(), String.format(Locale.KOREA,"현재 위치의 주소는 %s", addressList.get(0).getAddressLine(0).toString()), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         });
         gpsModule.getCurrentLocation();
