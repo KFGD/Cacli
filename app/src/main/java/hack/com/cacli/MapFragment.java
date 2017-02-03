@@ -22,7 +22,14 @@ import com.nhn.android.maps.overlay.NMapPOIitem;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -160,6 +167,75 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
             return null;
         }
         return location;
+    }
+
+    public static String POST(String url, double longitude, double latitude){
+        InputStream is = null;
+        String result = "";
+        Log.i("info","post to server");
+
+        try {
+            URL urlCon = new URL(url);
+            HttpURLConnection httpCon = (HttpURLConnection)urlCon.openConnection();
+
+            String json = "";
+
+            // build jsonObject
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.accumulate("longitude", longitude);
+            jsonObject.accumulate("latitude", latitude);
+
+            // convert JSONObject to JSON to String
+            json = jsonObject.toString();
+            Log.i("info","json : " + json);
+
+            // Set some headers to inform server about the type of the content
+            httpCon.setRequestMethod("POST");
+            httpCon.setRequestProperty("Accept", "application/json");
+            httpCon.setRequestProperty("Content-type", "application/json");
+
+            // OutputStream으로 POST 데이터를 넘겨주겠다는 옵션.
+            httpCon.setDoOutput(true);
+            // InputStream으로 서버로 부터 응답을 받겠다는 옵션.
+            httpCon.setDoInput(true);
+
+            httpCon.connect();
+
+            OutputStream os = httpCon.getOutputStream();
+            OutputStreamWriter wr = new OutputStreamWriter(os,"UTF-8");
+            wr.write(json);
+            wr.flush();
+            wr.close();
+            os.close();
+
+
+            // receive response as inputStream
+            try {
+                is = httpCon.getInputStream();
+                // convert inputstream to string
+                if(is != null)
+                    result = is.toString();
+                else
+                    result = "Did not work!";
+
+                is.close();
+                Log.i("info","response : " + result);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                httpCon.disconnect();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (Exception e) {
+            Log.d("InputStream", e.getLocalizedMessage());
+        }
+
+        return result;
     }
 
     @Override

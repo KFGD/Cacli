@@ -89,6 +89,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
                 findViewById(R.id.linear_search).setVisibility(View.GONE);
 
+                mapFragment.POST("http://www.naver.com",123,123);
             }
         });
         mapFragment.setArguments(new Bundle());
