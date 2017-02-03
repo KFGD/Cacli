@@ -4,6 +4,7 @@ package hack.com.cacli;
 import android.location.Address;
 import android.location.Location;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,7 @@ import com.nhn.android.maps.overlay.NMapPOIitem;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -30,12 +32,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -89,7 +94,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
 
         gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
-            public void success(Location location) {
+            public void success(final Location location) {
                 if(location == null) {
                     Toast.makeText(getActivity(), "GPS을 확인해주시기 바랍니다.", Toast.LENGTH_SHORT).show();
                     return;
@@ -98,11 +103,38 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                 NGeoPoint point = new NGeoPoint(location.getLongitude(), location.getLatitude());
                 mapView.getMapController().setMapCenter(point, 13);
 
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new AsyncTask<Void, Void, JSONArray>(){
+                        @Override
+                        protected JSONArray doInBackground(Void... voids) {
+                            JSONArray jsonArr = POST("http://ec2-52-79-164-115.ap-northeast-2.compute.amazonaws.com", location.getLongitude(), location.getLatitude());
+                            Log.i("info","json array : " + jsonArr.toString());
+                            return jsonArr;
+                        }
+                    }.execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
                 mapOverlayController = new MapOverlayController(mMapViewerResourceProvider, mapOverlayManager);
                 List<OverlayItem> overlayItems = new ArrayList<>();
                 overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude(), NMapPOIflagType.TO, "유저"));
-                overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude()+0.001, NMapPOIflagType.FROM, "건물1"));
-                overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude()+0.002, NMapPOIflagType.FROM, "건물1"));
+
+                if(jsonArray != null){
+                    for(int i=0;i<jsonArray.length();i++){
+                        try{
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            overlayItems.add(new OverlayItem(jsonObject.getDouble("longitude"), jsonObject.getDouble("latitude"), NMapPOIflagType.FROM, jsonObject.getString("location")));
+                        }
+                        catch (org.json.JSONException e){
+                            Log.i("info","json exception");
+                        }
+                    }
+                }
+
                 mapOverlayController.initOverlayItemList(overlayItems);
                 mapOverlayController.displayOverlayItemList(MapFragment.this);
 
@@ -132,14 +164,19 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         mMapContext.setupMapView(mapView);
     }
 
-    public void SearchMapByAddress(String address){
+    public NGeoPoint SearchMapByAddress(String address){
         final NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
         NGeoPoint point = findGeoPoint(address);
 
-        if(point != null)
+        if(point != null){
             mapView.getMapController().setMapCenter(point,13);
-        else
+            return point;
+        }
+        else{
             Toast.makeText(getActivity(), "찾을 수 없는 주소입니다." , Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
     }
 
     /**
@@ -209,8 +246,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         return null;
     }
 
-    public static String POST(String url, double longitude, double latitude){
-        InputStream is = null;
+    public static JSONArray POST(String url, double longitude, double latitude){
         String result = "";
         Log.i("info","post to server");
 
@@ -248,23 +284,22 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
             wr.close();
             os.close();
 
+            Log.i("info","send");
 
+            InputStream is = new URL(url).openStream();
             // receive response as inputStream
             try {
-                is = httpCon.getInputStream();
-                // convert inputstream to string
-                if(is != null)
-                    result = is.toString();
-                else
-                    result = "Did not work!";
-
-                is.close();
-                Log.i("info","response : " + result);
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+                String jsonText = readAll(rd);
+                JSONArray jsonArr = new JSONArray(jsonText);
+                return jsonArr;
             }
             catch (IOException e) {
+                Log.i("info","inputstream error");
                 e.printStackTrace();
             }
             finally {
+                is.close();
                 httpCon.disconnect();
             }
         }
@@ -275,8 +310,18 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
             Log.d("InputStream", e.getLocalizedMessage());
         }
 
-        return result;
+        return null;
     }
+
+    private static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {

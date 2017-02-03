@@ -34,6 +34,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.nhn.android.maps.maplib.NGeoPoint;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
@@ -83,7 +88,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     return;
                 }
 
-                mapFragment.SearchMapByAddress(edtxt_search.getText().toString());
+                final NGeoPoint point = mapFragment.SearchMapByAddress(edtxt_search.getText().toString());
                 InputMethodManager imm= (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(edtxt_search.getWindowToken(), 0);
 
@@ -93,7 +98,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 new AsyncTask<Void, Void, Void>(){
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        mapFragment.POST("http://www.naver.com", 123, 123);
+                        JSONArray jsonArr = mapFragment.POST("http://ec2-52-79-164-115.ap-northeast-2.compute.amazonaws.com", point.getLongitude(), point.getLatitude());
+                        Log.i("info","json array : " + jsonArr.toString());
                         return null;
                     }
                 }.execute();
@@ -109,6 +115,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     @Override
     protected void onStart() {
         super.onStart();
+
     }
 
     @Override
