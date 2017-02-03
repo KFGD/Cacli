@@ -24,11 +24,14 @@ import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,6 +170,43 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
             return null;
         }
         return location;
+    }
+
+    public static String POST(String urlString){
+
+        StringBuilder result = new StringBuilder();
+
+        HttpURLConnection httpURLConnection = null;
+        BufferedReader reader = null;
+        try {
+            URL url = new URL(urlString);
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setConnectTimeout(10000);
+            httpURLConnection.setReadTimeout(10000);
+            httpURLConnection.connect();
+            reader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            String line = null;
+            while((line = reader.readLine())!= null){
+                result.append(line);
+            }
+            Log.i("info", result.toString());
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(reader != null)
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            if(httpURLConnection != null)
+                httpURLConnection.disconnect();
+        }
+
+        return null;
     }
 
     public static String POST(String url, double longitude, double latitude){

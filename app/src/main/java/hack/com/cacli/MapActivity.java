@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
@@ -89,7 +90,13 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
                 findViewById(R.id.linear_search).setVisibility(View.GONE);
 
-                mapFragment.POST("http://www.naver.com",123,123);
+                new AsyncTask<Void, Void, Void>(){
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        mapFragment.POST("http://www.naver.com", 123, 123);
+                        return null;
+                    }
+                }.execute();
             }
         });
         mapFragment.setArguments(new Bundle());
