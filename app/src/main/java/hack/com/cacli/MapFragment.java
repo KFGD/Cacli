@@ -23,6 +23,7 @@ import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,7 +31,7 @@ import java.util.Locale;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateChangeListener{
 
     private NMapContext mMapContext;
     private static final String CLIENT_ID = "HTSOdNC5nUu2HRqBtirR";
@@ -71,7 +72,7 @@ public class MapFragment extends Fragment {
         final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
         final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
-        mapView.getMapController().setMapCenter(findGeoPoint("강남역"),13);
+        //mapView.getMapController().setMapCenter(findGeoPoint("강남역"),13);
 
         GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
@@ -83,12 +84,21 @@ public class MapFragment extends Fragment {
                 Log.i("info", String.format(Locale.KOREA, "위도 : %s 경도 : %s", String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude())));
                 NGeoPoint point = new NGeoPoint(location.getLongitude(), location.getLatitude());
                 mapView.getMapController().setMapCenter(point, 13);
-                int markerId = NMapPOIflagType.PIN;
+
+                MapOverlayController mapOverlayController = new MapOverlayController(mMapViewerResourceProvider, mapOverlayManager);
+                List<OverlayItem> overlayItems = new ArrayList<>();
+                overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude(), "Pizza 777-111", NMapPOIflagType.FROM, "tag1"));
+                overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude()+0.001, "Pizza 777-222", NMapPOIflagType.TO, "tag2"));
+                mapOverlayController.initOverlayItemList(overlayItems);
+                mapOverlayController.displayOverlayItemList(MapFragment.this);
+
+                /*int markerId = NMapPOIflagType.PIN;
 
                 // set POI data
                 NMapPOIdata poiData = new NMapPOIdata(2, mMapViewerResourceProvider);
                 poiData.beginPOIdata(1);
-                poiData.addPOIitem(location.getLongitude(), location.getLatitude(), "Pizza 777-111", markerId, 0);
+                poiData.addPOIitem(location.getLongitude(), location.getLatitude(), "Pizza 777-111", NMapPOIflagType.FROM, "tag1");
+                poiData.addPOIitem(location.getLongitude(), location.getLatitude()+0.001, "Pizza 777-222", NMapPOIflagType.TO, "tag2");
                 poiData.endPOIdata();
 
                 // create POI data overlay
@@ -105,16 +115,17 @@ public class MapFragment extends Fragment {
                     @Override
                     public void onCalloutClick(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
                         NGeoPoint point = nMapPOIitem.getPoint();
+                        Log.i("info", "call");
                         try {
                             List<Address> addressList = mGeocoder.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
                             if(addressList != null && addressList.size() > 0){
-                                Toast.makeText(getActivity(), String.format(Locale.KOREA,"현재 위치의 주소는 %s", addressList.get(0).getAddressLine(0).toString()), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), String.format(Locale.KOREA,"%s 현재 위치의 주소는 %s", nMapPOIitem.getTag(),addressList.get(0).getAddressLine(0).toString()), Toast.LENGTH_SHORT).show();
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                });
+                });*/
             }
         });
 
@@ -190,5 +201,64 @@ public class MapFragment extends Fragment {
     public void onDestroy() {
         mMapContext.onDestroy();
         super.onDestroy();
+    }
+
+    @Override
+    public void onFocusChanged(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
+
+    }
+
+    @Override
+    public void onCalloutClick(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
+        NGeoPoint point = nMapPOIitem.getPoint();
+        try {
+            List<Address> addressList = mGeocoder.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
+            if(addressList != null && addressList.size() > 0){
+                Toast.makeText(getActivity(), String.format(Locale.KOREA,"%s 현재 위치의 주소는 %s", nMapPOIitem.getTag(), addressList.get(0).getAddressLine(0).toString()), Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public class OverlayItem{
+        private final double longitude;
+        private final double latitude;
+        private final String title;
+        private final int type;
+        private final String tag;
+
+        public OverlayItem(double longitude, double latitude, String title, int type, String tag) {
+            this.longitude = longitude;
+            this.latitude = latitude;
+            this.title = title;
+            this.type = type;
+            this.tag = tag;
+        }
+    }
+
+    public class MapOverlayController{
+        private final NMapViewerResourceProvider mMapViewerResourceProvider;
+        private final NMapOverlayManager mMapOverlayManager;
+        private final NMapPOIdata mPOIData;
+
+        public MapOverlayController(NMapViewerResourceProvider mapViewerResourceProvider, NMapOverlayManager mMapOverlayManager){
+            this.mMapViewerResourceProvider = mapViewerResourceProvider;
+            this.mMapOverlayManager = mMapOverlayManager;
+            this.mPOIData = new NMapPOIdata(2, mMapViewerResourceProvider);
+        }
+
+        public void initOverlayItemList(List<OverlayItem> itemList){
+            mPOIData.beginPOIdata(itemList.size());
+            for(OverlayItem item : itemList){
+                mPOIData.addPOIitem(item.longitude, item.latitude, item.title, item.type, item.tag);
+            }
+            mPOIData.endPOIdata();
+        }
+
+        public void displayOverlayItemList(NMapPOIdataOverlay.OnStateChangeListener onStateChangeListener){
+            NMapPOIdataOverlay poIdataOverlay = mMapOverlayManager.createPOIdataOverlay(mPOIData, null);
+            poIdataOverlay.setOnStateChangeListener(onStateChangeListener);
+        }
     }
 }
