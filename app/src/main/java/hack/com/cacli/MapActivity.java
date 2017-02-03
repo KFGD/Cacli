@@ -89,35 +89,20 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 InputMethodManager imm= (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(edtxt_search.getWindowToken(), 0);
 
-                findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
-                findViewById(R.id.linear_search).setVisibility(View.GONE);
 
                 JSONArray jsonArr = null;
 
-                /*
-                try {
-                    jsonArr =  new AsyncTask<Void, Void, JSONArray>(){
-                        @Override
-                        protected JSONArray doInBackground(Void... voids) {
-                            JSONArray jsonArr = mapFragment.POST("http://hmkcode.appspot.com/jsonservlet", point.getLongitude(), point.getLatitude());
-                            Log.i("info","json array : " + jsonArr.toString());
-                            return jsonArr;
-                        }
-                    }.execute().get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }*/
-
-                String str = "{\"longitude\":126.977971,\"latitude\":37.565667\"location\":\"서울\"}";
+                String str = "[{\"longitude\":126.977971,\"latitude\":37.565667,\"location\":\"서울\"}]";
                 try {
                     jsonArr = new JSONArray(str);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                mapFragment.parseJsonArrayIntoMap(jsonArr);
+                mapFragment.parseJsonArrayIntoMap(jsonArr, null);
+
+                findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
+                findViewById(R.id.linear_search).setVisibility(View.GONE);
             }
         });
 

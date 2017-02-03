@@ -119,28 +119,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                     e.printStackTrace();
                 }
 
-                mapOverlayController = new MapOverlayController(mMapViewerResourceProvider, mapOverlayManager);
-                List<OverlayItem> overlayItems = new ArrayList<>();
-                overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude(), NMapPOIflagType.TO, "유저"));
-
-                /*
-                if(jsonArray != null){
-                    for(int i=0;i<jsonArray.length();i++){
-                        try{
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            overlayItems.add(new OverlayItem(jsonObject.getDouble("longitude"), jsonObject.getDouble("latitude"), NMapPOIflagType.FROM, jsonObject.getString("location")));
-                        }
-                        catch (org.json.JSONException e){
-                            Log.i("info","at success : json exception");
-                        }
-                    }
-                }*/
-
-                parseJsonArrayIntoMap(jsonArray);
-
-                mapOverlayController.initOverlayItemList(overlayItems);
-                mapOverlayController.displayOverlayItemList(MapFragment.this);
-
+                parseJsonArrayIntoMap(jsonArray, point);
                 try {
                     List<Address> addressList = mGeocoder.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
                     if(addressList != null && addressList.size() > 0){
@@ -155,14 +134,17 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         gpsModule.getCurrentLocation();
     }
 
-    public void parseJsonArrayIntoMap(JSONArray jsonArray){
+    public void parseJsonArrayIntoMap(JSONArray jsonArray, NGeoPoint location){
         final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
         final NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
-        final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
+        NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
-        mapOverlayController = new MapOverlayController(mMapViewerResourceProvider, mapOverlayManager);
+        if(mapOverlayController == null)
+            mapOverlayController = new MapOverlayController(mMapViewerResourceProvider, mapOverlayManager);
+        mapOverlayController.clearOverlay();
         List<OverlayItem> overlayItems = new ArrayList<>();
-        //overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude(), NMapPOIflagType.TO, "유저"));
+        if(location != null)
+            overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude(), NMapPOIflagType.TO, "유저"));
 
         if(jsonArray != null){
             for(int i=0;i<jsonArray.length();i++){
