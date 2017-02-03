@@ -58,8 +58,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 mapFragment.SearchMapByAddress(edtxt_search.getText().toString());
 
                 InputMethodManager imm= (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-
                 imm.hideSoftInputFromWindow(edtxt_search.getWindowToken(), 0);
+
+                mapFragment.POST("naver.com",123,123);
             }
         });
     }
