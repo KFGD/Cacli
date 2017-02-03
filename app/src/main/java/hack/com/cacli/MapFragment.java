@@ -108,7 +108,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                     jsonArray = new AsyncTask<Void, Void, JSONArray>(){
                         @Override
                         protected JSONArray doInBackground(Void... voids) {
-                            JSONArray jsonArr = POST("http://hmkcode.appspot.com/jsonservlet", location.getLongitude(), location.getLatitude());
+                            JSONArray jsonArr = POST("http://ec2-52-79-164-115.ap-northeast-2.compute.amazonaws.com/connect_client", location.getLongitude(), location.getLatitude());
                             Log.i("info","json array : " + jsonArr.toString());
                             return jsonArr;
                         }

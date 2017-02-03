@@ -92,12 +92,29 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
                 JSONArray jsonArr = null;
 
+                try {
+                    jsonArr = new AsyncTask<Void, Void, JSONArray>(){
+                        @Override
+                        protected JSONArray doInBackground(Void... voids) {
+                            JSONArray jsonArr = mapFragment.POST("http://ec2-52-79-164-115.ap-northeast-2.compute.amazonaws.com/connect_client", point.getLongitude(), point.getLatitude());
+                            Log.i("info","json array : " + jsonArr.toString());
+                            return jsonArr;
+                        }
+                    }.execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+
+                /*//this is for test
                 String str = "[{\"longitude\":126.977971,\"latitude\":37.565667,\"location\":\"서울\"}]";
                 try {
                     jsonArr = new JSONArray(str);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 mapFragment.parseJsonArrayIntoMap(jsonArr, null);
 
@@ -118,6 +135,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         super.onStart();
 
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -144,6 +163,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         int id = item.getItemId();
 
         Log.i("info", "call Option");
+
+        if(id == R.drawable.ic_back){
+            Log.i("info","back");
+            finish();
+        }
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
