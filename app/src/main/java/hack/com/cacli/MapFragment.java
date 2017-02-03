@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.location.Geocoder;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.nhn.android.maps.NMapContext;
@@ -72,7 +73,6 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
         final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
-        //mapView.getMapController().setMapCenter(findGeoPoint("강남역"),13);
 
         GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
@@ -92,40 +92,6 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                 mapOverlayController.initOverlayItemList(overlayItems);
                 mapOverlayController.displayOverlayItemList(MapFragment.this);
 
-                /*int markerId = NMapPOIflagType.PIN;
-
-                // set POI data
-                NMapPOIdata poiData = new NMapPOIdata(2, mMapViewerResourceProvider);
-                poiData.beginPOIdata(1);
-                poiData.addPOIitem(location.getLongitude(), location.getLatitude(), "Pizza 777-111", NMapPOIflagType.FROM, "tag1");
-                poiData.addPOIitem(location.getLongitude(), location.getLatitude()+0.001, "Pizza 777-222", NMapPOIflagType.TO, "tag2");
-                poiData.endPOIdata();
-
-                // create POI data overlay
-                NMapPOIdataOverlay poiDataOverlay = mapOverlayManager.createPOIdataOverlay(poiData, null);
-                // show all POI data
-                poiDataOverlay.showAllPOIdata(0);
-                //set event listener to the overlay
-                poiDataOverlay.setOnStateChangeListener(new NMapPOIdataOverlay.OnStateChangeListener() {
-                    @Override
-                    public void onFocusChanged(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
-
-                    }
-
-                    @Override
-                    public void onCalloutClick(NMapPOIdataOverlay nMapPOIdataOverlay, NMapPOIitem nMapPOIitem) {
-                        NGeoPoint point = nMapPOIitem.getPoint();
-                        Log.i("info", "call");
-                        try {
-                            List<Address> addressList = mGeocoder.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
-                            if(addressList != null && addressList.size() > 0){
-                                Toast.makeText(getActivity(), String.format(Locale.KOREA,"%s 현재 위치의 주소는 %s", nMapPOIitem.getTag(),addressList.get(0).getAddressLine(0).toString()), Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });*/
             }
         });
 
@@ -142,6 +108,16 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         mapView.setFocusableInTouchMode(true);
         mapView.requestFocus();
         mMapContext.setupMapView(mapView);
+    }
+
+    public void SearchMapByAddress(String address){
+        final NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
+        NGeoPoint point = findGeoPoint(address);
+
+        if(point != null)
+            mapView.getMapController().setMapCenter(point,13);
+        else
+            Toast.makeText(getActivity(), "찾을 수 없는 주소입니다." , Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -165,8 +141,11 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
 
                 Log.i("info", "주소로부터 취득한 위도 : " + lat + ", 경도 : " + lng);
             }
+            else
+                return null;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
         return location;
     }
