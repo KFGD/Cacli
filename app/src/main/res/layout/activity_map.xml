@@ -7,16 +7,6 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="hack.com.cacli.MapActivity">
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_navigation_view"
-        app:menu="@menu/activity_navigation_view_drawer" />
-
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
@@ -92,8 +82,9 @@
                     <EditText
                         android:id="@+id/edtxt_search"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="50dp"
                         android:layout_weight="8"
+                        android:background="@null"
                         android:ems="10"
                         android:inputType="textPersonName"
                         android:text=" " />
@@ -123,5 +114,16 @@
                 android:orientation="horizontal" />
         </LinearLayout>
     </android.support.design.widget.CoordinatorLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:fitsSystemWindows="true"
+        android:background="@drawable/bg_navi"
+        app:itemIconTint="#FFFFFF"
+        app:itemTextColor="#FFFFFF"
+        app:menu="@menu/activity_navigation_view_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

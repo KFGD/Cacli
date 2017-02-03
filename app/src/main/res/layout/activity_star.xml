@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_star"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_card_out"
+    tools:context="hack.com.cacli.StarActivity">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_card_in"
+        android:orientation="vertical"
+        android:padding="60dp">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:text="즐겨찾기"
+            android:textColor="#FF675D"/>
+    </LinearLayout>
+</RelativeLayout>

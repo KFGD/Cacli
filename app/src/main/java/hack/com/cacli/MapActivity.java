@@ -1,25 +1,19 @@
 package hack.com.cacli;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -78,9 +72,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
 
         btn_search.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -164,6 +158,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        Log.i("info", "call Option");
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
@@ -174,7 +170,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
+        //return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -182,19 +179,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Log.i("info", "call item");
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_star) {
+            startActivity(new Intent(this, StarActivity.class));
+        } else if (id == R.id.nav_error) {
+            startActivity(new Intent(this, ErrorActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
