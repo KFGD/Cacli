@@ -38,6 +38,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
     private Geocoder mGeocoder;
     private MapActivity mapActivity;
     private MapOverlayController mapOverlayController;
+    private GPSModule gpsModule;
 
     public MapFragment() {
         // Required empty public constructor
@@ -76,7 +77,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
 
 
-        GPSModule gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
+        gpsModule = new GPSModule(getActivity(), new GPSModule.OnSuccessListener() {
             @Override
             public void success(Location location) {
                 if(location == null) {
@@ -94,6 +95,15 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                 overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude()+0.002, NMapPOIflagType.FROM, "건물1"));
                 mapOverlayController.initOverlayItemList(overlayItems);
                 mapOverlayController.displayOverlayItemList(MapFragment.this);
+
+                try {
+                    List<Address> addressList = mGeocoder.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
+                    if(addressList != null && addressList.size() > 0){
+                        mapActivity.setCurrentPositionTextView(addressList.get(0).getAddressLine(0).substring(0, 20));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -158,7 +168,16 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         view.findViewById(R.id.root).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 mapOverlayController.clearCalloutOverlay();
+            }
+        });
+
+        view.findViewById(R.id.btn_compass).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mapOverlayController.clearOverlay();
+                gpsModule.getCurrentLocation();
             }
         });
     }
@@ -254,6 +273,10 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
         public void displayOverlayItemList(NMapPOIdataOverlay.OnStateChangeListener onStateChangeListener){
             NMapPOIdataOverlay poIdataOverlay = mMapOverlayManager.createPOIdataOverlay(mPOIData, null);
             poIdataOverlay.setOnStateChangeListener(onStateChangeListener);
+        }
+
+        public void clearOverlay(){
+            mMapOverlayManager.clearOverlays();
         }
 
         public void clearCalloutOverlay(){

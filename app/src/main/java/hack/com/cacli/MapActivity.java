@@ -3,6 +3,7 @@ package hack.com.cacli;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -36,17 +37,34 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
     private DrawerLayout drawerLayout;
     private MapFragment mapFragment;
+    private TextView tv_pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         mapFragment = MapFragment.getInstance(this);
+        tv_pos = (TextView)findViewById(R.id.tv_pos);
+        Button btn_search_active = (Button)findViewById(R.id.btn_search_active);
+        btn_search_active.setTypeface(Typeface.createFromAsset(getAssets(), "YoonGothic740.ttf"));
+        btn_search_active.setText("주소 검색");
+        btn_search_active.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                findViewById(R.id.linear_normal).setVisibility(View.GONE);
+                findViewById(R.id.linear_search).setVisibility(View.VISIBLE);
+            }
+        });
 
-        final Button btn_search = (Button) findViewById(R.id.btn_search);
+
+        final ImageButton btn_search = (ImageButton) findViewById(R.id.btn_search);
         final EditText edtxt_search = (EditText)findViewById(R.id.edtxt_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        TextView tv_title = (TextView)findViewById(R.id.tv_title);
+        tv_title.setText("내 주변");
+        tv_title.setTypeface(Typeface.createFromAsset(getAssets(), "YoonGothic760.ttf"));
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -65,17 +83,14 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 }
 
                 mapFragment.SearchMapByAddress(edtxt_search.getText().toString());
-
                 InputMethodManager imm= (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-
                 imm.hideSoftInputFromWindow(edtxt_search.getWindowToken(), 0);
+
+                findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
+                findViewById(R.id.linear_search).setVisibility(View.GONE);
+
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         mapFragment.setArguments(new Bundle());
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
@@ -83,8 +98,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         fragmentTransaction.commit();
     }
 
-
-
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 
     @Override
     public void onBackPressed() {
@@ -180,6 +197,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         });
         layout.addView(snackView);
         snackbar.show();
+    }
 
+    public void setCurrentPositionTextView(String pos){
+        tv_pos.setText(pos);
     }
 }
