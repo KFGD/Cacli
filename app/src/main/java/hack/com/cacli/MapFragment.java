@@ -108,7 +108,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                     jsonArray = new AsyncTask<Void, Void, JSONArray>(){
                         @Override
                         protected JSONArray doInBackground(Void... voids) {
-                            JSONArray jsonArr = POST("http://ec2-52-79-164-115.ap-northeast-2.compute.amazonaws.com", location.getLongitude(), location.getLatitude());
+                            JSONArray jsonArr = POST("http://hmkcode.appspot.com/jsonservlet", location.getLongitude(), location.getLatitude());
                             Log.i("info","json array : " + jsonArr.toString());
                             return jsonArr;
                         }
@@ -123,6 +123,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                 List<OverlayItem> overlayItems = new ArrayList<>();
                 overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude(), NMapPOIflagType.TO, "유저"));
 
+                /*
                 if(jsonArray != null){
                     for(int i=0;i<jsonArray.length();i++){
                         try{
@@ -130,10 +131,12 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                             overlayItems.add(new OverlayItem(jsonObject.getDouble("longitude"), jsonObject.getDouble("latitude"), NMapPOIflagType.FROM, jsonObject.getString("location")));
                         }
                         catch (org.json.JSONException e){
-                            Log.i("info","json exception");
+                            Log.i("info","at success : json exception");
                         }
                     }
-                }
+                }*/
+
+                parseJsonArrayIntoMap(jsonArray);
 
                 mapOverlayController.initOverlayItemList(overlayItems);
                 mapOverlayController.displayOverlayItemList(MapFragment.this);
@@ -149,10 +152,35 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
             }
         });
 
-
         gpsModule.getCurrentLocation();
-
     }
+
+    public void parseJsonArrayIntoMap(JSONArray jsonArray){
+        final NMapViewerResourceProvider mMapViewerResourceProvider = new NMapViewerResourceProvider(getActivity());
+        final NMapView mapView = (NMapView)getView().findViewById(R.id.mapView);
+        final NMapOverlayManager mapOverlayManager = new NMapOverlayManager(getActivity(), mapView, mMapViewerResourceProvider);
+
+        mapOverlayController = new MapOverlayController(mMapViewerResourceProvider, mapOverlayManager);
+        List<OverlayItem> overlayItems = new ArrayList<>();
+        //overlayItems.add(new OverlayItem(location.getLongitude(), location.getLatitude(), NMapPOIflagType.TO, "유저"));
+
+        if(jsonArray != null){
+            for(int i=0;i<jsonArray.length();i++){
+                try{
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    Log.i("info", "jsonobject : " + jsonObject.getString("longitude"));
+                    overlayItems.add(new OverlayItem(jsonObject.getDouble("longitude"), jsonObject.getDouble("latitude"), NMapPOIflagType.FROM, jsonObject.getString("location")));
+                }
+                catch (org.json.JSONException e){
+                    Log.i("info","json exception");
+                }
+            }
+        }
+
+        mapOverlayController.initOverlayItemList(overlayItems);
+        mapOverlayController.displayOverlayItemList(MapFragment.this);
+    }
+
 
     private void initMapView(NMapView mapView) {
         mapView.setClientId(CLIENT_ID);

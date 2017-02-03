@@ -37,7 +37,10 @@ import android.widget.Toast;
 import com.nhn.android.maps.maplib.NGeoPoint;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.concurrent.ExecutionException;
 
 public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -95,16 +98,35 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
                 findViewById(R.id.linear_search).setVisibility(View.GONE);
 
-                new AsyncTask<Void, Void, Void>(){
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        JSONArray jsonArr = mapFragment.POST("http://ec2-52-79-164-115.ap-northeast-2.compute.amazonaws.com", point.getLongitude(), point.getLatitude());
-                        Log.i("info","json array : " + jsonArr.toString());
-                        return null;
-                    }
-                }.execute();
+                JSONArray jsonArr = null;
+
+                /*
+                try {
+                    jsonArr =  new AsyncTask<Void, Void, JSONArray>(){
+                        @Override
+                        protected JSONArray doInBackground(Void... voids) {
+                            JSONArray jsonArr = mapFragment.POST("http://hmkcode.appspot.com/jsonservlet", point.getLongitude(), point.getLatitude());
+                            Log.i("info","json array : " + jsonArr.toString());
+                            return jsonArr;
+                        }
+                    }.execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }*/
+
+                String str = "{\"longitude\":126.977971,\"latitude\":37.565667\"location\":\"서울\"}";
+                try {
+                    jsonArr = new JSONArray(str);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mapFragment.parseJsonArrayIntoMap(jsonArr);
             }
         });
+
         mapFragment.setArguments(new Bundle());
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
