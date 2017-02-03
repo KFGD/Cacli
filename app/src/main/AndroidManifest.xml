@@ -22,10 +22,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MenuActivity" />
         <activity
             android:name=".MapActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MenuActivity" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MenuActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MapActivity"
+            />
+        </activity>
         <activity
             android:name=".StarActivity"
             android:theme="@style/AppTheme.NoActionBar" />
