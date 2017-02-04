@@ -123,6 +123,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
                 mapFragment.parseJsonArrayIntoMap(jsonArr, null);
                 tv_pos.setText(address);
+                tv_title.setText("검색하기");
 
                 findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
                 findViewById(R.id.linear_search).setVisibility(View.GONE);
