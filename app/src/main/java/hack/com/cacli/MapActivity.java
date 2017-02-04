@@ -64,7 +64,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         final EditText edtxt_search = (EditText)findViewById(R.id.edtxt_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        TextView tv_title = (TextView)findViewById(R.id.tv_title);
+        final TextView tv_title = (TextView)findViewById(R.id.tv_title);
         tv_title.setText("내 주변");
         tv_title.setTypeface(Typeface.createFromAsset(getAssets(), "YoonGothic760.ttf"));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -77,19 +77,21 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         btn_search.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                String address = null;
                 Log.i("info","search button clicked");
-                if(edtxt_search.getText().toString() == null){
+                if((address = edtxt_search.getText().toString()) == null){
                     Toast.makeText(MapActivity.this, "주소를 입력해 주세요." , Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                final NGeoPoint point = mapFragment.SearchMapByAddress(edtxt_search.getText().toString());
+                final NGeoPoint point = mapFragment.SearchMapByAddress(address);
                 InputMethodManager imm= (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(edtxt_search.getWindowToken(), 0);
 
 
                 JSONArray jsonArr = null;
 
+                /*
                 try {
                     jsonArr = new AsyncTask<Void, Void, JSONArray>(){
                         @Override
@@ -103,18 +105,24 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     e.printStackTrace();
                 } catch (ExecutionException e) {
                     e.printStackTrace();
-                }
+                }*/
 
 
-                /*//this is for test
-                String str = "[{\"longitude\":126.977971,\"latitude\":37.565667,\"location\":\"서울\"}]";
+                //this is for test
+                String str = "[{\"longitude\":126.962789,\"latitude\":37.558378,\"location\":\"중구 서소문로2길 18\"},";
+                str += "{\"longitude\":126.962885,\"latitude\":37.558821,\"location\":\"중구 서소문로2길 7\"},";
+                str += "{\"longitude\":126.963383,\"latitude\":37.557555,\"location\":\"중구 서소문로2길 33-8\"},";
+                str += "{\"longitude\":126.963223,\"latitude\":37.557558,\"location\":\"중구 서소문로2길 33-4\"},";
+                str += "{\"longitude\":126.964589,\"latitude\":37.557173,\"location\":\"중구 중림로4길 41\"},";
+                str += "{\"longitude\":126.963509,\"latitude\":37.557543,\"location\":\"중구 서소문로2길 33-10\"}]";
                 try {
                     jsonArr = new JSONArray(str);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }*/
+                }
 
                 mapFragment.parseJsonArrayIntoMap(jsonArr, null);
+                tv_pos.setText(address);
 
                 findViewById(R.id.linear_normal).setVisibility(View.VISIBLE);
                 findViewById(R.id.linear_search).setVisibility(View.GONE);

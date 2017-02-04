@@ -104,6 +104,8 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                 mapView.getMapController().setMapCenter(point, 13);
 
                 JSONArray jsonArray = null;
+
+                /*
                 try {
                     jsonArray = new AsyncTask<Void, Void, JSONArray>(){
                         @Override
@@ -117,7 +119,7 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
                     e.printStackTrace();
                 } catch (ExecutionException e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 parseJsonArrayIntoMap(jsonArray, point);
                 try {
@@ -295,8 +297,8 @@ public class MapFragment extends Fragment implements NMapPOIdataOverlay.OnStateC
             os.close();
 
             Log.i("info","send");
-
-            InputStream is = new URL(url).openStream();
+            InputStream is = httpCon.getInputStream();
+            //InputStream is = new URL(url).openStream();
             // receive response as inputStream
             try {
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));

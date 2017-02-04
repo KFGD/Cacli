@@ -12,8 +12,9 @@
         android:id="@+id/btn_compass"
         android:src="@drawable/ic_compass"
         android:background="#00000000"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="46dp"
+        android:layout_height="45dp"
+        android:scaleType="fitXY"
         android:layout_gravity="right"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"/>
